@@ -1,0 +1,172 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int rollingthedice() {
+    return rand() % 6 + 1;
+}
+int calculatingthescore(int dice1, int dice2, int dice3) {
+    int score ;
+
+        // crag
+    if ((dice1 == dice2 || dice1 == dice3 || dice2 == dice3) && (dice1 + dice2 + dice3 == 13)) {
+        score = 50;
+    }
+        // thirteen
+    else if (dice1 + dice2 + dice3 == 13) {
+        score = 26;
+    }
+        // three of a kind
+    else if (dice1 == dice2 && dice2 == dice3) {
+        score = 25;
+    }
+        // low straight
+    else if ((dice1 == 1 && dice2 == 2 && dice3 == 3)) {
+        score = 20;
+    }
+        // high straight
+    else if ((dice1 == 4 && dice2 == 5 && dice3 == 6)) {
+        score = 20;
+    }
+        // odd straight
+    else if ((dice1 == 1 && dice2 == 3 && dice3 == 5)) {
+        score = 20;
+    }
+        // even straight
+    else if ((dice1 == 2 && dice2 == 4 && dice3 == 6)) {
+        score = 20;
+    }
+        // sumation
+    else {
+        score = dice1 + dice2 + dice3;
+    }
+
+    return score;
+}
+void machineplays(int *computerScore) {
+    int dice1 = rollingthedice();
+    int dice2 = rollingthedice();
+    int dice3 = rollingthedice();
+
+    printf("Computer rolls the dice:{D1}%d {D2}%d {D3}%d\n", dice1, dice2, dice3);
+    *computerScore = calculatingthescore(dice1, dice2, dice3);
+}
+
+void userplays(int *userScore) {
+    int dice1 = rollingthedice();
+    int dice2 = rollingthedice();
+    int dice3 = rollingthedice();
+
+    printf("Player rolls the dice: {D1}%d {D2}%d {D3}%d\n", dice1, dice2, dice3);
+
+    char rerollingchoice;
+    int keepthedice1, keepthedice2;
+
+    printf("Should I reroll the dice for you (Y/N)? ");
+    scanf(" %c", &rerollingchoice);
+
+    if (rerollingchoice == 'Y' || rerollingchoice == 'y') {
+        printf("Which ones do you want to keep? ");
+        scanf("%d %d", &keepthedice1, &keepthedice2);
+
+        if ((keepthedice1 < 1 || keepthedice1 > 3) || (keepthedice2 < 1 || keepthedice2 > 3) || (keepthedice1 == keepthedice2)) {
+            printf("Please enter a valid input!\n");
+            return;
+        }
+
+        printf("After the reroll you got ");
+
+        // dice1
+        if (keepthedice1 == 1) {
+            printf("{D1}%d ", dice1);
+        } else {
+            dice1 = rollingthedice();
+            printf("{D1}%d ", dice1);
+        }
+
+        // dice2
+        if (keepthedice2 == 2) {
+            printf("{D2}%d ", dice2);
+        } else {
+            dice2 = rollingthedice();
+            printf("{D2}%d ", dice2);
+        }
+
+        // dice3
+        if (keepthedice2 == 3) {
+            printf("{D3}%d\n", dice3);
+        } else {
+            dice3 = rollingthedice();
+            printf("{D3}%d\n", dice3);
+        }
+
+    } else if (rerollingchoice == 'N' || rerollingchoice == 'n') {
+        printf("Keeping them as they are.\n");
+    } else {
+        printf("WRONG INPUT PLEASE ENTER A VALID INPUT!\n");
+        return;
+    }
+
+
+
+    *userScore = calculatingthescore(dice1, dice2, dice3);
+}
+
+void scoreboard(int cmp_scrd, int plyr_scrd) {
+    printf("Machine | Human\n");
+    printf("   %d   |    %d\n", cmp_scrd, plyr_scrd);
+}
+
+int main() {
+    srand(time(0));
+
+    printf("Welcome to The Crag game.\n");
+    printf("Let's Begin!\n");
+
+    int rounds_played = 0;
+    char wanttoplayagain = 'Y';
+
+    while (wanttoplayagain == 'Y' || wanttoplayagain == 'y') {
+        int numberofrounds;
+        printf("How many rounds do you want to play? ");
+        scanf("%d", &numberofrounds);
+
+        rounds_played++;
+
+        int points_for_gambler1 = 0;
+        int points_for_gambler2 = 0;
+
+        for (int round = 1; round <= numberofrounds; round++) {
+            printf("Round %d  Player's Turn:\n", round);
+            int userScore;
+            userplays(&userScore);
+
+            printf("Round %d  Computer's Turn:\n", round);
+            int computerScore;
+            machineplays(&computerScore);
+
+            points_for_gambler2 += userScore;
+            points_for_gambler1 += computerScore;
+
+            scoreboard(points_for_gambler1, points_for_gambler2);
+        }
+
+        if (points_for_gambler1 > points_for_gambler2) {
+            printf("YOU LOST COMPUTER WINS!\n");
+        } else if (points_for_gambler1 < points_for_gambler2) {
+            printf("YOU WIN FLAWLESS VICTORY!\n");
+        } else {
+            printf("The Scores are equal, No winner today!\n");
+        }
+
+        printf("Do you want to play again? (Y/N): ");
+        scanf(" %c", &wanttoplayagain);
+
+        if (wanttoplayagain != 'Y' && wanttoplayagain != 'y') {
+            printf("Thanks for playing!\n");
+        }
+    }
+
+    return 0;
+}
